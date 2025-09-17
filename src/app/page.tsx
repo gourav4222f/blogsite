@@ -178,8 +178,8 @@ export default function Home() {
             }
             scrollableTarget="scrollableDiv"
           >
-            {timeline.map((timelineItem) => (
-              <div key={`${timelineItem.type}-${timelineItem.item.id}`} className="border-b">
+            {timeline.map((timelineItem,index) => (
+              <div key={`${timelineItem.type}-${timelineItem.item.id}${index}`} className="border-b">
                 <PostCard
                   post={timelineItem.item}
                   currentUserId={currentUserId}
