@@ -8,11 +8,13 @@ import { useState } from "react";
 interface FollowButtonProps {
   targetUserId: string;
   initialIsFollowing: boolean;
+  className?: string;
 }
 
 export function FollowButton({
   targetUserId,
   initialIsFollowing,
+  className,
 }: FollowButtonProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -51,6 +53,7 @@ export function FollowButton({
       onClick={handleFollow}
       disabled={isSubmitting}
       variant={isFollowing ? "secondary" : "default"}
+      className={className}
     >
       {isFollowing ? "Unfollow" : "Follow"}
     </Button>

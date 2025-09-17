@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FollowButton } from "@/components/app/FollowButton";
+import { SearchIcon } from "lucide-react";
 
 function useDebouncedValue<T>(value: T, delay = 400) {
   const [debounced, setDebounced] = useState(value);
@@ -77,16 +78,22 @@ export function UserSearch() {
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => setOpen(true)}
-        placeholder="Search users..."
-        className="w-full rounded-md max-w-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/80 dark:border-gray-700 dark:bg-neutral-900"
-      />
+     <div className="relative rounded-lg shadow-md overflow-hidden">
+  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+    <SearchIcon className="w-5 h-5 text-muted-foreground" />
+  </div>
+  <input
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    onFocus={() => setOpen(true)}
+    placeholder="Search users..."
+    className="block w-full border-2 border-transparent text-sm text-muted-foreground focus:ring-2 focus:ring-accent-500 focus:border-accent-500 py-2.5 pl-10 pr-4 rounded-lg transition-all duration-200 dark:bg-neutral-800 dark:text-muted-foreground dark:focus:ring-accent-400 dark:focus:border-accent-400"
+  />
+</div>
+
 
       {open && (
-      <div className="absolute left-0  w-[20vw] top-[calc(100%+0.5rem)] z-50 rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-950 shadow-md overflow-hidden">
+      <div className="absolute left-0  w-full top-[calc(100%+0.5rem)] z-50 rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-950 shadow-md overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

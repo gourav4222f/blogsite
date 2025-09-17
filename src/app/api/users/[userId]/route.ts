@@ -1,20 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 /**
  * GET /api/users/[userId]
  * Fetches a user's profile information.
  */
-export async function GET(req: Request, { params }: { params: { userId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   try {
+    const { userId } = await params;
     const user = await prisma.user.findUnique({
-      where: { id: params.userId },
+      where: { id: userId },
       select: {
         id: true,
         name: true,
         username: true,
-        avatarUrl: true,
-        bio: true,
+        image: true,
         createdAt: true,
         _count: {
           select: {

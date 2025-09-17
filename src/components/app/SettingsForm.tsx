@@ -29,6 +29,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
     }
   }, [state]);
 
+  // Narrow potential string | { name?: string[] } to only the object case
+  const fieldErrors =
+    state && typeof state.error !== "string" ? state.error : null;
+  // Capture general (non-field) error messages
+  const generalError =
+    state && typeof state.error === "string" ? state.error : null;
+
   return (
     <form
       action={(formData) => {
@@ -41,8 +48,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
       <div>
         <Label htmlFor="name">Name</Label>
         <Input id="name" name="name" defaultValue={user.name ?? ""} />
-        {state?.error?.name && (
-          <p className="text-sm text-red-500 mt-1">{state.error.name[0]}</p>
+        {fieldErrors?.name && (
+          <p className="text-sm text-red-500">{fieldErrors.name[0]}</p>
         )}
       </div>
       <div>
@@ -64,8 +71,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
         {successMessage && (
           <p className="text-sm text-green-600">{successMessage}</p>
         )}
-        {typeof state?.error === "string" && (
-          <p className="text-sm text-red-500">{state.error}</p>
+        {generalError && (
+          <p className="text-sm text-red-500">{generalError}</p>
         )}
       </div>
     </form>

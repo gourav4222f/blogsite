@@ -1,17 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { userId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const session = await auth();
   const currentUserId = session?.user?.id;
 
   try {
+    const { userId } = await params;
     const follows = await prisma.relation.findMany({
-      where: { followingId: params.userId },
+      where: { followingId: userId },
       include: {
         follower: {
           include: {

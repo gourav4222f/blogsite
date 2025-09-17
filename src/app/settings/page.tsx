@@ -1,5 +1,4 @@
 import { SettingsForm } from '@/components/app/SettingsForm'
-import { AuthButton } from '@/components/AuthButton'
 import React from 'react'
 import { auth } from '@/auth'
 import prisma from '@/lib/prisma'
@@ -25,7 +24,7 @@ export default async function Page() {
       <div className="mx-auto max-w-2xl">
         <header className="p-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Settings</h1>
-          <AuthButton />
+          
         </header>
         <SettingsForm user={user} />
       </div>

@@ -7,7 +7,7 @@ import { auth } from '@/auth';
  * POST /api/posts/[postId]/like
  * Toggles a like on a post for a given user.
  */
-export async function POST(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
     }
 
     const validation = likePostSchema.safeParse({
-      postId: params.postId,
+      postId: (await params).postId,
     });
 
     if (!validation.success) {

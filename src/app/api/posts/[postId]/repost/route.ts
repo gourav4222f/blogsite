@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -12,7 +12,7 @@ export async function POST(
   }
 
   const userId = session.user.id;
-  const postId = params.postId;
+  const { postId } = await params;
 
   try {
     const existingRepost = await prisma.repost.findUnique({

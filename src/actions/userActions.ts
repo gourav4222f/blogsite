@@ -10,7 +10,18 @@ const UpdateProfileSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters long."),
 });
 
-export async function updateProfile(formData: FormData) {
+type UpdateProfileState =
+  {
+    error: string | { name?: string[] };
+    message?: string;
+  }
+  | { message: string; error?: undefined }
+  | null;
+
+export async function updateProfile(
+  prevState: UpdateProfileState,
+  formData: FormData
+) {
   const session = await auth();
   if (!session?.user?.id) {
     return { error: "Not authenticated." };
@@ -35,8 +46,12 @@ export async function updateProfile(formData: FormData) {
     });
 
     // Revalidate the user's profile page and settings page to show new data
-    if (session.user.username) {
-      revalidatePath(`/${session.user.username}`);
+    const updated = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { username: true },
+    });
+    if (updated?.username) {
+      revalidatePath(`/${updated.username}`);
     }
     revalidatePath("/settings");
 

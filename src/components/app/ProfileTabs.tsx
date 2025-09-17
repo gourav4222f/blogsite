@@ -5,9 +5,51 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PostCard } from "./PostCard";
 import { UserList } from "./UserList";
 
+import type { Post, User } from "@prisma/client";
+
+type PostWithDetails = Post & {
+  author: User;
+  likes: { userId: string }[];
+  reposts: { userId: string }[];
+  _count: {
+    likes: number;
+    comments: number;
+    reposts: number;
+  };
+  // For reposts, the post will contain the original post
+  post?: Post & {
+    author: User;
+    likes: { userId: string }[];
+    reposts: { userId: string }[];
+    _count: {
+      likes: number;
+      comments: number;
+      reposts: number;
+    };
+  };
+};
+
+// Matches shape of a repost record loaded in ProfilePage (includes repost metadata and nested post)
+type RepostWithDetails = {
+  id: string;
+  createdAt: Date;
+  postId: string;
+  userId: string;
+  user: User; // reposter
+  post: PostWithDetails; // original post with details
+};
+
+// Discriminated union to accurately represent posts vs reposts
 type TimelineItem =
-  | { type: "post"; item: any }
-  | { type: "repost"; item: any; reposter: any };
+  | {
+      type: 'post';
+      item: PostWithDetails;
+    }
+  | {
+      type: 'repost';
+      item: RepostWithDetails;
+      reposter: User;
+    };
 
 interface ProfileTabsProps {
   initialTimeline: TimelineItem[];
@@ -21,8 +63,17 @@ export function ProfileTabs({
   currentUserId,
 }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState("posts");
-  const [followers, setFollowers] = useState<any[]>([]);
-  const [following, setFollowing] = useState<any[]>([]);
+  interface FollowerUser {
+    id: string;
+    name: string | null;
+    username: string | null;
+    image: string | null;
+    bio: string | null;
+    isFollowing: boolean;
+  }
+
+  const [followers, setFollowers] = useState<FollowerUser[]>([]);
+  const [following, setFollowing] = useState<FollowerUser[]>([]);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -34,8 +85,8 @@ export function ProfileTabs({
           if (!res.ok) throw new Error("Failed to fetch followers");
           const data = await res.json();
           setFollowers(data);
-        } catch (e: any) {
-          setError(e.message);
+        } catch (e) {
+          setError(e instanceof Error ? e.message : 'An unknown error occurred');
         }
       });
     } else if (activeTab === "following") {
@@ -45,8 +96,8 @@ export function ProfileTabs({
           if (!res.ok) throw new Error("Failed to fetch following");
           const data = await res.json();
           setFollowing(data);
-        } catch (e: any) {
-          setError(e.message);
+        } catch (e) {
+          setError(e instanceof Error ? e.message : 'An unknown error occurred');
         }
       });
     }
@@ -59,9 +110,9 @@ export function ProfileTabs({
       className="w-full"
     >
       <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="posts">Posts & Reposts</TabsTrigger>
-        <TabsTrigger value="followers">Followers</TabsTrigger>
-        <TabsTrigger value="following">Following</TabsTrigger>
+        <TabsTrigger className="px-2" value="posts">Posts</TabsTrigger>
+        <TabsTrigger className="px-2" value="followers">Followers</TabsTrigger>
+        <TabsTrigger className="px-2" value="following">Following</TabsTrigger>
       </TabsList>
 
       <TabsContent value="posts">

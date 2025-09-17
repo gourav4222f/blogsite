@@ -7,19 +7,20 @@ import { auth } from '@/auth';
  * GET /api/posts/[postId]/comments
  * Fetches comments for a specific post.
  */
-export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
     try {
+        const { postId } = await params;
         const comments = await prisma.comment.findMany({
             where: { 
-                postId: params.postId,
+                postId,
                 parentId: null // Only fetch top-level comments
             },
             orderBy: { createdAt: 'asc' },
             include: {
-                author: { select: { id: true, name: true, username: true, avatarUrl: true }},
+                author: { select: { id: true, name: true, username: true, image: true }},
                 replies: { // Nested replies
                     include: {
-                        author: { select: { id: true, name: true, username: true, avatarUrl: true }}
+                        author: { select: { id: true, name: true, username: true, image: true }}
                     }
                 }
             }
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
  * POST /api/posts/[postId]/comments
  * Creates a new comment or a reply on a post.
  */
-export async function POST(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -46,7 +47,8 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
     }
 
     const body = await req.json();
-    const validation = createCommentSchema.safeParse({ ...body, postId: params.postId });
+    const { postId } = await params;
+    const validation = createCommentSchema.safeParse({ ...body, postId });
 
     if (!validation.success) {
       return NextResponse.json({ message: 'Invalid request', issues: validation.error.issues }, { status: 400 });

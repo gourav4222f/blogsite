@@ -1,12 +1,27 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Post, User } from "@prisma/client";
 import { PostActions } from "./PostActions";
 import Link from "next/link";
-import { Repeat } from "lucide-react"; // Using lucide-react for a nice icon
+import { Repeat } from "lucide-react";
 
-type PostWithDetails = Post & {
+type User = {
+  id: string;
+  name: string | null;
+  username: string | null;
+  email: string | null;
+  image: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+  emailVerified?: Date | null;
+};
+
+type PostWithDetails = {
+  id: string;
+  content: string;
+  createdAt: string | Date;
+  updatedAt?: Date;
   author: User;
+  authorId: string;
   likes: { userId: string }[];
   reposts: { userId: string }[];
   _count: {
@@ -19,7 +34,7 @@ type PostWithDetails = Post & {
 interface PostCardProps {
   post: PostWithDetails;
   currentUserId?: string;
-  repostedBy?: User; // This is the new optional prop
+  repostedBy?: User;
 }
 
 export function PostCard({ post, currentUserId, repostedBy }: PostCardProps) {

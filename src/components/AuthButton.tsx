@@ -43,14 +43,14 @@ export function AuthButton() {
 
   if (!session) {
     return (
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={() => signIn("github")}
           className="flex items-center gap-2 px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition"
         >
           <GitHubIcon />
-          Sign in with GitHub
+         <p className="sm:inline hidden">GitHub</p>
         </button>
 
         <button
@@ -59,7 +59,7 @@ export function AuthButton() {
           className="flex items-center gap-2 px-4 py-2 rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
         >
           <GoogleIcon />
-          Sign in with Google
+         <p className="sm:inline hidden">Google</p>
         </button>
       </div>
     );

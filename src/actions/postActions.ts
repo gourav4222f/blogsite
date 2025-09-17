@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { createPostSchema } from '@/lib/validations';
 import { z } from 'zod';
+import { auth } from '@/auth';
 
 // We define a return type for our action for better type safety.
 export type FormState = {
@@ -17,6 +18,14 @@ export async function createPostAction(
   formData: FormData,
 ): Promise<FormState> {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) {
+      return {
+        success: false,
+        message: 'Unauthorized.',
+      };
+    }
     const data = Object.fromEntries(formData);
     const validation = createPostSchema.safeParse(data);
 
@@ -27,18 +36,10 @@ export async function createPostAction(
         errors: validation.error.issues,
       };
     }
-
-    const { title, content, authorId } = validation.data;
-    
-    // Same logic as before: ensure user exists
-    await prisma.user.upsert({
-        where: { id: authorId },
-        update: {},
-        create: { id: authorId, email: `${authorId}@example.com`, name: 'Test User' }
-    });
+    const { content } = validation.data;
 
     await prisma.post.create({
-      data: { title, content, authorId },
+      data: { content, authorId: userId },
     });
     
     // Revalidate the path to update the UI with the new post.
@@ -46,7 +47,7 @@ export async function createPostAction(
 
     return {
       success: true,
-      message: `Successfully created post: ${title}`,
+      message: `Successfully created post`,
     };
   } catch (error) {
     console.error('Error creating post:', error);
